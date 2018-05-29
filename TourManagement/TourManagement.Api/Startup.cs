@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TourManagement.Api.Data;
+using TourManagement.Api.Repositories;
 
 namespace TourManagement.Api
 {
@@ -25,9 +26,14 @@ namespace TourManagement.Api
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            services.AddScoped<ITourRepository, TourRepository>();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(
+            IApplicationBuilder app,
+            IHostingEnvironment env, 
+            ApplicationDbContext context)
         {
             if (env.IsDevelopment())
             {
@@ -38,8 +44,11 @@ namespace TourManagement.Api
                 app.UseHsts();
             }
 
+            app.UseStatusCodePages();
+
             app.UseHttpsRedirection();
             app.UseMvc();
+            DbInitializer.Initialize(context);
         }
     }
 }
