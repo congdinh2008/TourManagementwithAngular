@@ -11,8 +11,8 @@ namespace TourManagement.Api.Models
         [Required]
         public string CreatedBy { get; set; }
 
-        public DateTime UpdateOn { get; set; }
+        public DateTime UpdatedOn { get; set; }
 
-        public string UpdateBy { get; set; }
+        public string UpdatedBy { get; set; }
     }
 }

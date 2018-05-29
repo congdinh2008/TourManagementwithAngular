@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using TourManagement.Api.Models;
 using TourManagement.Api.Repositories;
 
 namespace TourManagement.Api.Controllers
@@ -20,21 +21,25 @@ namespace TourManagement.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetTours()
         {
-            var tours = await _tourRepository.GetTours();
+            var toursFromRepo = await _tourRepository.GetTours();
 
-            return Ok(tours);
+           // var tours = Mapper.Map<IEnumerable<Tour>>(toursFromRepo);
+            return Ok(toursFromRepo);
         }
 
         [HttpGet("{tourId}", Name ="GetTour")]
         public async Task<IActionResult> GetTour(Guid tourId)
         {
-            var tour = await _tourRepository.GetTour(tourId);
-            if (tour == null)
+            var tourFromRepo = await _tourRepository.GetTour(tourId);
+
+            if (tourFromRepo == null)
             {
                 return BadRequest();
             }
 
-            return Ok(tour);
+            //var tour = Mapper.Map<Tour>(tourFromRepo);
+
+            return Ok(tourFromRepo);
         }
     }
 }

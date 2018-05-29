@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace TourManagement.Api.Models
 {
@@ -27,5 +25,18 @@ namespace TourManagement.Api.Models
 
         [Required]
         public DateTimeOffset EndDate { get; set; }
+
+        [Required]
+        public Guid BandId { get; set; }
+
+        [Required]
+        public Band Band { get; set; }
+
+        public Guid ManagerId { get; set; }
+
+        [ForeignKey("ManagerId")]
+        public Manager Manager { get; set; }
+
+        public ICollection<Show> Shows { get; set; } = new List<Show>();
     }
 }

@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TourManagement.Api.Data;
 using TourManagement.Api.Repositories;
+using TourManagement.Api.Services;
 
 namespace TourManagement.Api
 {
@@ -27,7 +29,15 @@ namespace TourManagement.Api
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
+            // register the repository
             services.AddScoped<ITourRepository, TourRepository>();
+
+            // register an IHttpContextAccessor so we can access the current
+            // HttpContext in services by injecting it
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            // register the user info service
+            services.AddScoped<IUserInfoService, UserInfoService>();
         }
 
         public void Configure(
