@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TourManagement.Api.Models;
+using TourManagement.Api.DTOs;
 using TourManagement.Api.Repositories;
 
 namespace TourManagement.Api.Controllers
@@ -23,11 +23,12 @@ namespace TourManagement.Api.Controllers
         {
             var toursFromRepo = await _tourRepository.GetTours();
 
-           // var tours = Mapper.Map<IEnumerable<Tour>>(toursFromRepo);
-            return Ok(toursFromRepo);
+            var tours = Mapper.Map<IEnumerable<Tour>>(toursFromRepo);
+
+            return Ok(tours);
         }
 
-        [HttpGet("{tourId}", Name ="GetTour")]
+        [HttpGet("{tourId}", Name = "GetTour")]
         public async Task<IActionResult> GetTour(Guid tourId)
         {
             var tourFromRepo = await _tourRepository.GetTour(tourId);
@@ -37,9 +38,9 @@ namespace TourManagement.Api.Controllers
                 return BadRequest();
             }
 
-            //var tour = Mapper.Map<Tour>(tourFromRepo);
+            var tour = Mapper.Map<Tour>(tourFromRepo);
 
-            return Ok(tourFromRepo);
+            return Ok(tour);
         }
     }
 }
