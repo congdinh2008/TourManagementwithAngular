@@ -75,6 +75,14 @@ namespace TourManagement.Api
 
             app.UseStatusCodePages();
             app.UseStaticFiles();
+            AutoMapper.Mapper.Initialize(config =>
+            {
+                config.CreateMap<Models.Tour, DTOs.Tour>()
+                    .ForMember(d => d.Band, o => o.MapFrom(s => s.Band.Name));
+                config.CreateMap<Models.Band, DTOs.Band>();
+                config.CreateMap<Models.Manager, DTOs.Manager>();
+                config.CreateMap<Models.Show, DTOs.Show>();
+            });
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
