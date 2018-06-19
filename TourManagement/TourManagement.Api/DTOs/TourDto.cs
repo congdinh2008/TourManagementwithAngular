@@ -2,7 +2,7 @@
 
 namespace TourManagement.Api.DTOs
 {
-    public class Tour
+    public class TourDto
     {
         public Guid TourId { get; set; }
         public string Band { get; set; }

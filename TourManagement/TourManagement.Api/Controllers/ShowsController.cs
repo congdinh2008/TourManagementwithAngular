@@ -30,7 +30,7 @@ namespace TourManagement.Api.Controllers
 
             var showsFromRepo = await _tourRepository.GetShows(tourId);
 
-            var shows = Mapper.Map<IEnumerable<Show>>(showsFromRepo);
+            var shows = Mapper.Map<IEnumerable<ShowDto>>(showsFromRepo);
             return Ok(shows);
         }
     }

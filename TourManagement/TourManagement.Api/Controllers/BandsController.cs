@@ -22,7 +22,7 @@ namespace TourManagement.Api.Controllers
         {
             var bandsFromRepo = await _tourRepository.GetBands();
 
-            var bands = Mapper.Map<IEnumerable<Band>>(bandsFromRepo);
+            var bands = Mapper.Map<IEnumerable<BandDto>>(bandsFromRepo);
 
             return Ok(bands);
         }

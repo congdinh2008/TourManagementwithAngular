@@ -22,7 +22,7 @@ namespace TourManagement.Api.Controllers
         {
             var managersFromRepo = await _tourRepository.GetManagers();
 
-            var managers = Mapper.Map<IEnumerable<Manager>>(managersFromRepo);
+            var managers = Mapper.Map<IEnumerable<ManagerDto>>(managersFromRepo);
 
             return Ok(managers);
         }

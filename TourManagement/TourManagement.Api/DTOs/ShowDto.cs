@@ -2,7 +2,7 @@
 
 namespace TourManagement.Api.DTOs
 {
-    public class Show
+    public class ShowDto
     {
         public Guid ShowId { get; set; }
         public string Venue { get; set; }

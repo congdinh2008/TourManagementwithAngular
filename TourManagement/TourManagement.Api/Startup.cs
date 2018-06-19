@@ -1,13 +1,16 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using TourManagement.Api.Data;
 using TourManagement.Api.Repositories;
@@ -31,7 +34,34 @@ namespace TourManagement.Api
             options.UseSqlServer(connectionString));
 
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc(setupAction =>
+            {
+                setupAction.ReturnHttpNotAcceptable = true;
+
+                var jsonOutputFormatter = setupAction.OutputFormatters.OfType<JsonOutputFormatter>().FirstOrDefault();
+
+                if (jsonOutputFormatter != null)
+                {
+                    jsonOutputFormatter.SupportedMediaTypes
+                    .Add("application/vnd.vivustore.tour+json");
+                    jsonOutputFormatter.SupportedMediaTypes
+                    .Add("application/vnd.vivustore.tourwithestimatedprofits+json");
+                }
+            })
+            .AddJsonOptions(options =>
+            {
+                options.SerializerSettings.DateParseHandling = DateParseHandling.DateTimeOffset;
+                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            });
+
+            // Configure CORS so the API allows requests from JavaScript.  
+            // For demo purposes, all origins/headers/methods are allowed.
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOriginsHeadersAndMethods", builder =>
+                builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+            });
+
 
             // register the repository
             services.AddScoped<ITourRepository, TourRepository>();
@@ -62,7 +92,7 @@ namespace TourManagement.Api
         public void Configure(
             IApplicationBuilder app,
             IHostingEnvironment env,
-            ApplicationDbContext context)
+            ApplicationDbContext dbContext)
         {
             if (env.IsDevelopment())
             {
@@ -70,18 +100,30 @@ namespace TourManagement.Api
             }
             else
             {
-                app.UseHsts();
+                app.UseExceptionHandler(appBuilder =>
+                {
+                    appBuilder.Run(async context =>
+                    {
+                        context.Response.StatusCode = 500;
+                        await context.Response.WriteAsync("An unexpected fault happened. Try again later.");
+                    });
+                });
             }
 
             app.UseStatusCodePages();
             app.UseStaticFiles();
+
             AutoMapper.Mapper.Initialize(config =>
             {
-                config.CreateMap<Models.Tour, DTOs.Tour>()
+                config.CreateMap<Models.Tour, DTOs.TourDto>()
                     .ForMember(d => d.Band, o => o.MapFrom(s => s.Band.Name));
-                config.CreateMap<Models.Band, DTOs.Band>();
-                config.CreateMap<Models.Manager, DTOs.Manager>();
-                config.CreateMap<Models.Show, DTOs.Show>();
+
+                config.CreateMap<Models.Tour, DTOs.TourWithEstimatedProfitsDto>()
+                    .ForMember(d => d.Band, o => o.MapFrom(s => s.Band.Name));
+
+                config.CreateMap<Models.Band, DTOs.BandDto>();
+                config.CreateMap<Models.Manager, DTOs.ManagerDto>();
+                config.CreateMap<Models.Show, DTOs.ShowDto>();
             });
             app.UseSwagger();
             app.UseSwaggerUI(c =>
@@ -90,8 +132,9 @@ namespace TourManagement.Api
                 c.RoutePrefix = string.Empty;
             });
 
+            app.UseCors("AllowAllOriginsHeadersAndMethods");
             app.UseMvc();
-            DbInitializer.Initialize(context);
+            DbInitializer.Initialize(dbContext);
         }
     }
 }
